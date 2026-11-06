@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Meme Disintegration Effect — 1200x1200</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f1015;
+      color: #e2e4ea;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+    p.subtitle {
+      font-size: 13px;
+      color: #8c90a4;
+    }
+    .main-layout {
+      display: flex;
+      flex-direction: row;
+      gap: 24px;
+      max-width: 1540px;
+      width: 100%;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .canvas-wrapper {
+      position: relative;
+      background: #181920;
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.45);
+      border: 1px solid #282a36;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    canvas#glCanvas {
+      width: 600px;
+      height: 600px;
+      max-width: 80vw;
+      max-height: 80vw;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      cursor: crosshair;
+      display: block;
+      background: #ffffff;
+    }
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #9da1b6;
+      font-family: monospace;
+    }
+    .controls-panel {
+      background: #181920;
+      border: 1px solid #282a36;
+      border-radius: 12px;
+      padding: 20px;
+      width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.45);
+    }
+    .panel-section {
+      border-bottom: 1px solid #262835;
+      padding-bottom: 14px;
+    }
+    .panel-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #7b819a;
+      margin-bottom: 12px;
+    }
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    button {
+      background: #252836;
+      border: 1px solid #363a4e;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    button:hover {
+      background: #32364a;
+      border-color: #4f5470;
+    }
+    button.primary {
+      background: #e53935;
+      border-color: #f44336;
+      grid-column: span 2;
+    }
+    button.primary:hover {
+      background: #d32f2f;
+    }
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .control-row:last-child { margin-bottom: 0; }
+    .label-val {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #c5c9d6;
+    }
+    .label-val span.value {
+      font-family: monospace;
+      color: #ffca28;
+      font-weight: 600;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #282a3a;
+      border-radius: 3px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffca28;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(255, 202, 40, 0.4);
+    }
+    .color-presets {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 6px;
+    }
+    .color-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 2px solid #363a4e;
+      cursor: pointer;
+      padding: 0;
+    }
+    .color-btn.active {
+      border-color: #ffca28;
+      box-shadow: 0 0 6px rgba(255, 202, 40, 0.5);
+    }
+    input[type="color"] {
+      -webkit-appearance: none;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      background: none;
+    }
+    .dropzone {
+      border: 2px dashed #3a3f58;
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+      font-size: 12px;
+      color: #8c90a4;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #14151b;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      border-color: #ffca28;
+      color: #ffca28;
+      background: rgba(255, 202, 40, 0.05);
+    }
+    #fileInput { display: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Розпад смайлика в пил (1200×1200 px)</h1>
+    <p class="subtitle">Точна симуляція мему «Sad emoji getting disintegrated into dust»</p>
+  </header>
+
+  <div class="main-layout">
+    <div class="canvas-wrapper">
+      <!-- Робоча область 1200x1200px відповідно до ТЗ -->
+      <canvas id="glCanvas" width="1200" height="1200"></canvas>
+      <div class="hud">
+        <span id="fpsMeter">FPS: 60</span>
+        <span id="particleMeter">Частинок: 0</span>
+        <span>Буфер: 1200×1200 px</span>
+      </div>
+    </div>
+
+    <div class="controls-panel">
+      <div class="panel-section">
+        <div class="section-title">Керування процесом</div>
+        <div class="btn-group">
+          <button id="btnPlay" class="primary">▶ Запустити розпад</button>
+          <button id="btnPause">⏸ Пауза</button>
+          <button id="btnReset">↺ Скинути</button>
+		  <button id="btnExportMP4" style="background:#2e7d32; border-color:#388e3c; grid-column: span 2;">
+			🎬 Експортувати в MP4 (Telegram GIF)
+		  </button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">Фізика та напрямок</div>
+        
+        <div class="control-row">
+          <div class="label-val">
+            <span>Кут розльоту (вгору-вліво)</span>
+            <span class="value" id="valAngle">-120°</span>
+          </div>
+          <!-- Базовий кут розльоту в межах -100° .. -135° згідно з ТЗ -->
+          <input type="range" id="sliderAngle" min="-150" max="-95" value="-120" step="1">
+        </div>
+
+        <div class="control-row">
+          <div class="label-val">
+            <span>Тривалість хвилі</span>
+            <span class="value" id="valDuration">3.0 с</span>
+          </div>
+          <input type="range" id="sliderDuration" min="1.5" max="6.0" value="3.0" step="0.1">
+        </div>
+
+        <div class="control-row">
+          <div class="label-val">
+            <span>Густина пилу</span>
+            <span class="value" id="valDensity">100%</span>
+          </div>
+          <input type="range" id="sliderDensity" min="40" max="180" value="100" step="5">
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">Фон та колір</div>
+        <div class="label-val"><span>Колір фону (чистий):</span></div>
+        <div class="color-presets">
+          <button class="color-btn active" style="background:#ffffff;" data-color="#ffffff" title="Білий (за замовчуванням)"></button>
+          <button class="color-btn" style="background:#0e1015;" data-color="#0e1015" title="Темний"></button>
+          <button class="color-btn" style="background:#1e293b;" data-color="#1e293b" title="Сіро-синій"></button>
+          <input type="color" id="customColorPicker" value="#ffffff" title="Довільний колір">
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">Джерело зображення</div>
+        <div class="dropzone" id="dropZone">
+          Натисніть або перетягніть свій PNG файл
+        </div>
+        <input type="file" id="fileInput" accept="image/png">
+        <div style="margin-top: 8px;">
+          <button id="btnDefaultMeme" style="width:100%; font-size:12px;">Відновити смайлик із мему</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =====================================================================
+       1. ГЕНЕРАЦІЯ ОРИГІНАЛЬНОГО 3D-СМАЙЛИКА З МЕМУ (1200x1200px PNG)
+       ===================================================================== */
+    function generateDefaultMemeEmoji() {
+      const c = document.createElement('canvas');
+      c.width = 1200;
+      c.height = 1200;
+      const ctx = c.getContext('2d');
+      ctx.clearRect(0, 0, 1200, 1200);
+
+      const cx = 600, cy = 610, R = 350;
+
+      // М'яка тінь під об'єктом
+      const shadowGrad = ctx.createRadialGradient(cx, cy + 330, 80, cx, cy + 330, 360);
+      shadowGrad.addColorStop(0, 'rgba(0,0,0,0.25)');
+      shadowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = shadowGrad;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 340, 340, 70, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Тіло смайлика (3D сферичний градієнт)
+      const bodyGrad = ctx.createRadialGradient(cx - 100, cy - 120, 60, cx, cy, R);
+      bodyGrad.addColorStop(0, '#FFF266');
+      bodyGrad.addColorStop(0.35, '#FFCA1D');
+      bodyGrad.addColorStop(0.75, '#F59600');
+      bodyGrad.addColorStop(1, '#B25300');
+
+      ctx.fillStyle = bodyGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Руки, що хапаються за щоки у розпачі
+      function drawHand(hx, hy, isLeft) {
+        ctx.save();
+        ctx.translate(hx, hy);
+        ctx.scale(isLeft ? 1 : -1, 1);
+        ctx.rotate(-0.2);
+
+        const handGrad = ctx.createRadialGradient(-20, -30, 20, 0, 0, 110);
+        handGrad.addColorStop(0, '#FFE853');
+        handGrad.addColorStop(0.6, '#F59600');
+        handGrad.addColorStop(1, '#9E4300');
+        ctx.fillStyle = handGrad;
+
+        // Пальці
+        for (let i = 0; i < 4; i++) {
+          ctx.beginPath();
+          ctx.ellipse(-35 + i * 22, -60 + Math.sin(i * 0.8) * 15, 17, 45, 0.15 * i, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Долоня
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 65, 75, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      drawHand(cx - 310, cy + 80, true);
+      drawHand(cx + 310, cy + 80, false);
+
+      // Скривлений у горі великий відкритий рот
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 130, 150, 105, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#1c0808';
+      ctx.fill();
+      ctx.lineWidth = 9;
+      ctx.strokeStyle = '#6d2a04';
+      ctx.stroke();
+
+      // Язик на дні рота
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 185, 95, 45, 0, Math.PI, Math.PI * 2);
+      ctx.fillStyle = '#b7283c';
+      ctx.fill();
+      ctx.restore();
+
+      // Очі у паніці та сльозах
+      function drawEye(ex, ey, isLeft) {
+        ctx.save();
+        ctx.translate(ex, ey);
+        ctx.rotate(isLeft ? -0.12 : 0.12);
+
+        // Білок
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 75, 95, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = '#9e4a00';
+        ctx.stroke();
+
+        // Велика розширена зіниця
+        ctx.fillStyle = '#1e1108';
+        ctx.beginPath();
+        ctx.ellipse(isLeft ? 8 : -8, 8, 50, 65, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Скляні відблиски сліз
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(isLeft ? -12 : -4, -20, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(isLeft ? 20 : 12, 24, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Сльоза, що стікає
+        ctx.fillStyle = 'rgba(78, 172, 255, 0.85)';
+        ctx.beginPath();
+        ctx.ellipse(0, 85, 22, 35, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      drawEye(cx - 130, cy - 80, true);
+      drawEye(cx + 130, cy - 80, false);
+
+      // Сповнені розпачу брови
+      function drawEyebrow(bx, by, isLeft) {
+        ctx.save();
+        ctx.translate(bx, by);
+        ctx.rotate(isLeft ? 0.35 : -0.35);
+        ctx.fillStyle = '#6d2c00';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 65, 14, isLeft ? 0.2 : -0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      drawEyebrow(cx - 135, cy - 195, true);
+      drawEyebrow(cx + 135, cy - 195, false);
+
+      return c;
+    }
+
+    /* =====================================================================
+       2. ПРОЦЕДУРНИЙ АТЛАС ТЕКСТУР ПОПЕЛУ (16 НЕОДНОРІДНИХ ШОРСТКИХ ФОРМ)
+       ===================================================================== */
+    function createAshAtlas() {
+      const atlas = document.createElement('canvas');
+      atlas.width = 512;
+      atlas.height = 512;
+      const ctx = atlas.getContext('2d');
+      ctx.clearRect(0, 0, 512, 512);
+
+      const tileSize = 128; // 4x4 тайли
+
+      for (let row = 0; row < 4; row++) {
+        for (let col = 0; col < 4; col++) {
+          const index = row * 4 + col;
+          const cx = col * tileSize + tileSize / 2;
+          const cy = row * tileSize + tileSize / 2;
+
+          ctx.save();
+          ctx.translate(cx, cy);
+
+          if (index < 4) {
+            // Дрібний пил та мікрокраплі попелу
+            ctx.fillStyle = '#1c1d22';
+            const count = 4 + Math.floor(Math.random() * 6);
+            for (let d = 0; d < count; d++) {
+              const dx = (Math.random() - 0.5) * 44;
+              const dy = (Math.random() - 0.5) * 44;
+              const rad = 2 + Math.random() * 4.5;
+              ctx.beginPath();
+              ctx.arc(dx, dy, rad, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          } else if (index < 10) {
+            // Середні шорсткі лусочки з обірваними краями
+            ctx.fillStyle = '#151619';
+            ctx.beginPath();
+            const pts = 7 + Math.floor(Math.random() * 5);
+            const baseR = 26 + Math.random() * 12;
+            for (let p = 0; p < pts; p++) {
+              const ang = (p / pts) * Math.PI * 2;
+              const r = baseR * (0.35 + Math.random() * 0.75);
+              const px = Math.cos(ang) * r;
+              const py = Math.sin(ang) * r;
+              if (p === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            // Прорізи / мікропорожнечі в лусочках
+            ctx.globalCompositeOperation = 'destination-out';
+            for (let h = 0; h < 3; h++) {
+              const hx = (Math.random() - 0.5) * 22;
+              const hy = (Math.random() - 0.5) * 22;
+              ctx.beginPath();
+              ctx.arc(hx, hy, 1.5 + Math.random() * 3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.globalCompositeOperation = 'source-over';
+          } else {
+            // Більші пористі уламки з нерівною вугільною структурою
+            ctx.fillStyle = '#0f1013';
+            ctx.beginPath();
+            const pts = 9 + Math.floor(Math.random() * 6);
+            const baseR = 40 + Math.random() * 12;
+            for (let p = 0; p < pts; p++) {
+              const ang = (p / pts) * Math.PI * 2;
+              const r = baseR * (0.3 + Math.random() * 0.8);
+              const px = Math.cos(ang) * r;
+              const py = Math.sin(ang) * r;
+              if (p === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            // Дрібне волокнисте кришіння на краях
+            ctx.fillStyle = '#222329';
+            for (let b = 0; b < 7; b++) {
+              const bang = Math.random() * Math.PI * 2;
+              const brad = baseR * (0.7 + Math.random() * 0.4);
+              ctx.beginPath();
+              ctx.arc(Math.cos(bang) * brad, Math.sin(bang) * brad, 2 + Math.random() * 3.5, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
+            // Пористі дірочки всередині
+            ctx.globalCompositeOperation = 'destination-out';
+            for (let h = 0; h < 5; h++) {
+              const hx = (Math.random() - 0.5) * 36;
+              const hy = (Math.random() - 0.5) * 36;
+              ctx.beginPath();
+              ctx.arc(hx, hy, 2 + Math.random() * 4, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.globalCompositeOperation = 'source-over';
+          }
+
+          ctx.restore();
+        }
+      }
+      return atlas;
+    }
+
+    /* =====================================================================
+       3. СИМПЛЕКС-ШУМ ДЛЯ СИНХРОНІЗАЦІЇ CPU ТА GPU (РВАНИЙ КРАЙ РОЗПАДУ)
+       ===================================================================== */
+    const F2 = 0.5 * (Math.sqrt(3.0) - 1.0);
+    const G2 = (3.0 - Math.sqrt(3.0)) / 6.0;
+    const pArr = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) pArr[i] = Math.floor(Math.random() * 256);
+    const perm = new Uint8Array(512);
+    const permMod12 = new Uint8Array(512);
+    for (let i = 0; i < 512; i++) {
+      perm[i] = pArr[i & 255];
+      permMod12[i] = perm[i] % 12;
+    }
+    const grad3 = new Float32Array([
+      1,1,0, -1,1,0, 1,-1,0, -1,-1,0,
+      1,0,1, -1,0,1, 1,0,-1, -1,0,-1,
+      0,1,1, 0,-1,1, 0,1,-1, 0,-1,-1
+    ]);
+
+    function snoise2D(xin, yin) {
+      let n0 = 0, n1 = 0, n2 = 0;
+      const s = (xin + yin) * F2;
+      const i = Math.floor(xin + s);
+      const j = Math.floor(yin + s);
+      const t = (i + j) * G2;
+      const X0 = i - t, Y0 = j - t;
+      const x0 = xin - X0, y0 = yin - Y0;
+      let i1 = x0 > y0 ? 1 : 0, j1 = x0 > y0 ? 0 : 1;
+      const x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
+      const x2 = x0 - 1.0 + 2.0 * G2, y2 = y0 - 1.0 + 2.0 * G2;
+      const ii = i & 255, jj = j & 255;
+
+      let t0 = 0.5 - x0 * x0 - y0 * y0;
+      if (t0 >= 0) {
+        const gi0 = permMod12[ii + perm[jj]] * 3;
+        t0 *= t0;
+        n0 = t0 * t0 * (grad3[gi0] * x0 + grad3[gi0 + 1] * y0);
+      }
+      let t1 = 0.5 - x1 * x1 - y1 * y1;
+      if (t1 >= 0) {
+        const gi1 = permMod12[ii + i1 + perm[jj + j1]] * 3;
+        t1 *= t1;
+        n1 = t1 * t1 * (grad3[gi1] * x1 + grad3[gi1 + 1] * y1);
+      }
+      let t2 = 0.5 - x2 * x2 - y2 * y2;
+      if (t2 >= 0) {
+        const gi2 = permMod12[ii + 1 + perm[jj + 1]] * 3;
+        t2 *= t2;
+        n2 = t2 * t2 * (grad3[gi2] * x2 + grad3[gi2 + 1] * y2);
+      }
+      return 70.0 * (n0 + n1 + n2);
+    }
+
+    function fbm2D(x, y) {
+      return 0.500 * snoise2D(x, y) +
+             0.250 * snoise2D(x * 2.02, y * 2.02) +
+             0.125 * snoise2D(x * 4.04, y * 4.04);
+    }
+
+    /* =====================================================================
+       4. GLSL ШЕЙДЕРИ ДЛЯ ТІЛА ТА ЧАСТИНОК
+       ===================================================================== */
+    // Шейдер тіла смайлика (діагональне потемніння + затримка 1/3 с + розпад)
+    const bodyVS = `
+      attribute vec2 a_pos;
+      varying vec2 v_uv;
+      void main() {
+        v_uv = (a_pos + 1.0) * 0.5;
+        v_uv.y = 1.0 - v_uv.y;
+        gl_Position = vec4(a_pos, 0.0, 1.0);
+      }
+    `;
+
+    const bodyFS = `
+      precision mediump float;
+      varying vec2 v_uv;
+
+      uniform sampler2D u_image;
+      uniform float u_progress;
+      uniform float u_gradWidth;
+      uniform float u_delay;
+      uniform vec4 u_bgColor;
+
+      vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+      float snoise(vec2 v){
+        const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+                 -0.577350269189626, 0.024390243902439);
+        vec2 i  = floor(v + dot(v, C.yy) );
+        vec2 x0 = v -   i + dot(i, C.xx);
+        vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+        vec4 x12 = x0.xyxy + C.xxzz;
+        x12.xy -= i1;
+        i = mod(i, 289.0);
+        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+              + i.x + vec3(0.0, i1.x, 1.0 ));
+        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+          dot(x12.zw,x12.zw)), 0.0);
+        m = m*m; m = m*m;
+        vec3 x = 2.0 * fract(p * C.www) - 1.0;
+        vec3 h = abs(x) - 0.5;
+        vec3 ox = floor(x + 0.5);
+        vec3 a0 = x - ox;
+        m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+        vec3 g;
+        g.x  = a0.x  * x0.x  + h.x  * x0.y;
+        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+        return 130.0 * dot(m, g);
+      }
+
+      float fbm(vec2 p) {
+        float f = 0.0;
+        f += 0.500 * snoise(p); p *= 2.02;
+        f += 0.250 * snoise(p); p *= 2.03;
+        f += 0.125 * snoise(p);
+        return f;
+      }
+
+      void main() {
+        vec4 imgCol = texture2D(u_image, v_uv);
+
+        // Повна прозорість вихідного фону (фон залишається чистим)
+        if (imgCol.a < 0.02) {
+          gl_FragColor = u_bgColor;
+          return;
+        }
+
+        // Хвиля: з правого нижнього (1.0, 1.0) у лівий верхній (0.0, 0.0)
+        float baseDist = ((1.0 - v_uv.x) + (1.0 - v_uv.y)) * 0.5;
+        float raggedDist = baseDist + fbm(v_uv * 14.0) * 0.08;
+
+        // 1. Хвиля потемніння
+        float darkFactor = smoothstep(u_progress - u_gradWidth, u_progress, raggedDist);
+        float burntAmount = 1.0 - darkFactor;
+
+        // 2. Хвиля розпаду (відстає на третину секунди)
+        float dissolveThreshold = u_progress - u_delay;
+
+        // Якщо хвиля розпаду пройшла — піксель обривається у повітря
+        if (raggedDist < dissolveThreshold) {
+          gl_FragColor = u_bgColor;
+          return;
+        }
+
+        // Вугільний колір обуглення
+        float lum = dot(imgCol.rgb, vec3(0.299, 0.587, 0.114));
+        vec3 charcoal = vec3(lum * 0.06) + vec3(0.04, 0.04, 0.05);
+
+        vec3 finalCol = mix(imgCol.rgb, charcoal, burntAmount);
+        vec3 composite = mix(u_bgColor.rgb, finalCol, imgCol.a);
+
+        gl_FragColor = vec4(composite, 1.0);
+      }
+    `;
+
+    // Шейдер частинок попелу (Point Sprites з поворотом та атласом)
+    const partVS = `
+      attribute vec2 a_pos;
+      attribute float a_size;
+      attribute float a_angle;
+      attribute float a_alpha;
+      attribute float a_tile;
+
+      uniform vec2 u_res;
+
+      varying float v_angle;
+      varying float v_alpha;
+      varying float v_tile;
+
+      void main() {
+        vec2 zeroToOne = a_pos / u_res;
+        vec2 clipSpace = (zeroToOne * 2.0 - 1.0) * vec2(1.0, -1.0);
+        gl_Position = vec4(clipSpace, 0.0, 1.0);
+        gl_PointSize = a_size;
+        v_angle = a_angle;
+        v_alpha = a_alpha;
+        v_tile = a_tile;
+      }
+    `;
+
+    const partFS = `
+      precision mediump float;
+      uniform sampler2D u_atlas;
+
+      varying float v_angle;
+      varying float v_alpha;
+      varying float v_tile;
+
+      void main() {
+        vec2 pt = gl_PointCoord - vec2(0.5);
+        float s = sin(v_angle);
+        float c = cos(v_angle);
+        vec2 rot = vec2(pt.x * c - pt.y * s, pt.x * s + pt.y * c);
+
+        if (abs(rot.x) > 0.5 || abs(rot.y) > 0.5) discard;
+
+        float colIdx = mod(floor(v_tile), 4.0);
+        float rowIdx = floor(floor(v_tile) / 4.0);
+        vec2 uv = (rot + vec2(0.5)) / 4.0 + vec2(colIdx, rowIdx) * 0.25;
+
+        vec4 col = texture2D(u_atlas, uv);
+        if (col.a < 0.08) discard;
+
+        gl_FragColor = vec4(col.rgb, col.a * v_alpha);
+      }
+    `;
+
+    /* =====================================================================
+       5. ГОЛОВНИЙ РУШІЙ АНІМАЦІЇ ТА ЧАСТИНОК (TYPED ARRAYS ДЛЯ 60 FPS)
+       ===================================================================== */
+    const canvas = document.getElementById('glCanvas');
+    const gl = canvas.getContext('webgl', { alpha: false, antialias: true });
+
+    if (!gl) {
+      alert("WebGL не підтримується у вашому браузері!");
+    }
+
+    function createShader(gl, type, source) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, source);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(s));
+        gl.deleteShader(s);
+        return null;
+      }
+      return s;
+    }
+
+    function createProgram(gl, vsSrc, fsSrc) {
+      const vs = createShader(gl, gl.VERTEX_SHADER, vsSrc);
+      const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSrc);
+      const p = gl.createProgram();
+      gl.attachShader(p, vs);
+      gl.attachShader(p, fs);
+      gl.linkProgram(p);
+      return p;
+    }
+
+    const bodyProg = createProgram(gl, bodyVS, bodyFS);
+    const partProg = createProgram(gl, partVS, partFS);
+
+    // Геометрія повного екрана для тіла смайлика
+    const quadBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1, -1,  1, -1, -1,  1,
+      -1,  1,  1, -1,  1,  1
+    ]), gl.STATIC_DRAW);
+
+    // Текстура смайлика
+    const imgTex = gl.createTexture();
+    function uploadImageTexture(sourceCanvas) {
+      gl.bindTexture(gl.TEXTURE_2D, imgTex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sourceCanvas);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    }
+
+    // Текстура атласу частинок
+    const atlasTex = gl.createTexture();
+    const atlasCanvas = createAshAtlas();
+    gl.bindTexture(gl.TEXTURE_2D, atlasTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, atlasCanvas);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    // Пул частинок (до 40,000 часток на TypedArray)
+    const MAX_PARTS = 40000;
+    let partCount = 0;
+    const pX = new Float32Array(MAX_PARTS);
+    const pY = new Float32Array(MAX_PARTS);
+    const pVx = new Float32Array(MAX_PARTS);
+    const pVy = new Float32Array(MAX_PARTS);
+    const pLife = new Float32Array(MAX_PARTS);
+    const pMaxLife = new Float32Array(MAX_PARTS);
+    const pSize = new Float32Array(MAX_PARTS);
+    const pAngle = new Float32Array(MAX_PARTS);
+    const pAngVel = new Float32Array(MAX_PARTS);
+    const pTile = new Float32Array(MAX_PARTS);
+    const pAlpha = new Float32Array(MAX_PARTS);
+    const pTurb = new Float32Array(MAX_PARTS);
+
+    // VBO для атрибутів частинок: [x, y, size, angle, alpha, tile] (6 float на частку)
+    const partVBO = gl.createBuffer();
+    const partData = new Float32Array(MAX_PARTS * 6);
+
+    // Точки емісії, підготовлені зі смайлика
+    let emissionPoints = [];
+    let emissionIndex = 0;
+
+    function buildEmissionPoints(sourceCanvas) {
+      emissionPoints = [];
+      emissionIndex = 0;
+      const ctx = sourceCanvas.getContext('2d');
+      const imgData = ctx.getImageData(0, 0, 1200, 1200).data;
+      const step = 3; // частота сканування пікселів
+
+      for (let y = 0; y < 1200; y += step) {
+        for (let x = 0; x < 1200; x += step) {
+          const idx = (y * 1200 + x) * 4;
+          if (imgData[idx + 3] > 30) {
+            const u = x / 1200;
+            const v = y / 1200;
+            const baseDist = ((1.0 - u) + (1.0 - v)) * 0.5;
+            const raggedDist = baseDist + fbm2D(u * 14.0, v * 14.0) * 0.08;
+
+            emissionPoints.push({
+              x: x + (Math.random() - 0.5) * step,
+              y: y + (Math.random() - 0.5) * step,
+              d: raggedDist
+            });
+          }
+        }
+      }
+      // Сортуємо за відстанню хвилі
+      emissionPoints.sort((a, b) => a.d - b.d);
+    }
+
+    // Завантаження вихідного смайлика
+    let currentEmojiCanvas = generateDefaultMemeEmoji();
+    uploadImageTexture(currentEmojiCanvas);
+    buildEmissionPoints(currentEmojiCanvas);
+
+    /* =====================================================================
+       6. ПАРАМЕТРИ СТАНУ ТА UI
+       ===================================================================== */
+    let isPlaying = false;
+    let waveProgress = 0.0;
+    let lastTime = 0;
+    let lastDissolveDist = 0.0;
+
+    // Згідно з ТЗ: базова затримка стабільного чорного стану ~1/3 секунди (0.33с)
+    const BLACK_DELAY_SECONDS = 0.35;
+    const GRADIENT_WIDTH = 0.12;
+
+    let baseAngleDeg = -120; // ТЗ: вектор у верхню ліву чверть (-100° .. -135°)
+    let waveDuration = 3.0;
+    let densityFactor = 1.0;
+    let bgColor = [1.0, 1.0, 1.0, 1.0];
+
+    const sliderAngle = document.getElementById('sliderAngle');
+    const valAngle = document.getElementById('valAngle');
+    sliderAngle.addEventListener('input', (e) => {
+      baseAngleDeg = parseFloat(e.target.value);
+      valAngle.textContent = `${baseAngleDeg}°`;
+    });
+
+    const sliderDuration = document.getElementById('sliderDuration');
+    const valDuration = document.getElementById('valDuration');
+    sliderDuration.addEventListener('input', (e) => {
+      waveDuration = parseFloat(e.target.value);
+      valDuration.textContent = `${waveDuration.toFixed(1)} с`;
+    });
+
+    const sliderDensity = document.getElementById('sliderDensity');
+    const valDensity = document.getElementById('valDensity');
+    sliderDensity.addEventListener('input', (e) => {
+      densityFactor = parseFloat(e.target.value) / 100;
+      valDensity.textContent = `${e.target.value}%`;
+    });
+
+    // Вибір кольору фону
+    function hexToRgba(hex) {
+      const r = parseInt(hex.slice(1, 3), 16) / 255;
+      const g = parseInt(hex.slice(3, 5), 16) / 255;
+      const b = parseInt(hex.slice(5, 7), 16) / 255;
+      return [r, g, b, 1.0];
+    }
+
+    document.querySelectorAll('.color-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        const hex = e.currentTarget.dataset.color;
+        bgColor = hexToRgba(hex);
+        canvas.style.backgroundColor = hex;
+      });
+    });
+
+    const customColorPicker = document.getElementById('customColorPicker');
+    customColorPicker.addEventListener('input', (e) => {
+      document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+      bgColor = hexToRgba(e.target.value);
+      canvas.style.backgroundColor = e.target.value;
+    });
+
+    // Керування анімацією
+    const btnPlay = document.getElementById('btnPlay');
+    const btnPause = document.getElementById('btnPause');
+    const btnReset = document.getElementById('btnReset');
+
+    btnPlay.addEventListener('click', () => {
+      if (waveProgress >= 1.45) resetAnimation();
+      isPlaying = true;
+    });
+
+    btnPause.addEventListener('click', () => {
+      isPlaying = false;
+    });
+
+    btnReset.addEventListener('click', () => {
+      resetAnimation();
+    });
+
+    function resetAnimation() {
+      isPlaying = false;
+      waveProgress = 0.0;
+      lastDissolveDist = 0.0;
+      emissionIndex = 0;
+      partCount = 0;
+    }
+
+    // Завантаження власного PNG
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      if (file.type !== 'image/png') {
+        alert("Будь ласка, оберіть файл формату PNG із прозорим фоном!");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = 1200;
+          c.height = 1200;
+          const ctx = c.getContext('2d');
+          ctx.clearRect(0, 0, 1200, 1200);
+
+          // Вписування зображення зі збереженням пропорцій по центру
+          const scale = Math.min(950 / img.width, 950 / img.height);
+          const w = img.width * scale;
+          const h = img.height * scale;
+          ctx.drawImage(img, (1200 - w) / 2, (1200 - h) / 2, w, h);
+
+          currentEmojiCanvas = c;
+          uploadImageTexture(currentEmojiCanvas);
+          buildEmissionPoints(currentEmojiCanvas);
+          resetAnimation();
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.getElementById('btnDefaultMeme').addEventListener('click', () => {
+      currentEmojiCanvas = generateDefaultMemeEmoji();
+      uploadImageTexture(currentEmojiCanvas);
+      buildEmissionPoints(currentEmojiCanvas);
+      resetAnimation();
+    });
+
+    /* =====================================================================
+       7. СПАВН ТА СИМУЛЯЦІЯ ФІЗИКИ ПИЛУ
+       ===================================================================== */
+    function spawnParticle(x, y) {
+      if (partCount >= MAX_PARTS) return;
+      const i = partCount++;
+
+      pX[i] = x + (Math.random() - 0.5) * 4;
+      pY[i] = y + (Math.random() - 0.5) * 4;
+
+      const r = Math.random();
+      let size, maxLife, baseSpeed;
+
+      if (r < 0.65) {
+        // Дрібний пил
+        size = 3.0 + Math.random() * 4.5;
+        maxLife = 1.3 + Math.random() * 1.0;
+        baseSpeed = 190 + Math.random() * 180;
+        pTile[i] = Math.floor(Math.random() * 4);
+      } else if (r < 0.90) {
+        // Середня лусочка
+        size = 8.0 + Math.random() * 9.0;
+        maxLife = 1.7 + Math.random() * 1.2;
+        baseSpeed = 160 + Math.random() * 200;
+        pTile[i] = 4 + Math.floor(Math.random() * 6);
+      } else {
+        // Великий шорсткий уламок
+        size = 18.0 + Math.random() * 16.0;
+        maxLife = 2.2 + Math.random() * 1.4;
+        baseSpeed = 130 + Math.random() * 170;
+        pTile[i] = 10 + Math.floor(Math.random() * 6);
+      }
+
+      // Розрахунок вектора у верхню ліву чверть
+      const baseRad = (baseAngleDeg * Math.PI) / 180;
+      const spread = (Math.random() - 0.5) * 0.55; // розбіжність ~30 градусів
+      const angle = baseRad + spread;
+
+      pVx[i] = Math.cos(angle) * baseSpeed;
+      pVy[i] = Math.sin(angle) * baseSpeed;
+
+      pLife[i] = 0;
+      pMaxLife[i] = maxLife;
+      pSize[i] = size;
+      pAngle[i] = Math.random() * Math.PI * 2;
+      pAngVel[i] = (Math.random() - 0.5) * 6.0;
+      pAlpha[i] = 0.9 + Math.random() * 0.1;
+      pTurb[i] = Math.random() * 1000;
+    }
+
+    function updateParticles(dt) {
+      let alive = 0;
+      const time = performance.now() * 0.001;
+      const baseRad = (baseAngleDeg * Math.PI) / 180;
+
+      for (let i = 0; i < partCount; i++) {
+        pLife[i] += dt;
+        if (pLife[i] < pMaxLife[i]) {
+          const prog = pLife[i] / pMaxLife[i];
+
+          // Опір повітря (делікатне сповільнення)
+          pVx[i] *= Math.pow(0.965, dt * 60);
+          pVy[i] *= Math.pow(0.965, dt * 60);
+
+          // Висхідний потік теплого попелу
+          pVy[i] -= 28.0 * dt;
+
+          // Турбулентне виляння частинок у польоті
+          const turb = Math.sin(time * 4.0 + pTurb[i]) * 55.0 * dt;
+          pVx[i] += -Math.sin(baseRad) * turb;
+          pVy[i] += Math.cos(baseRad) * turb;
+
+          pX[i] += pVx[i] * dt;
+          pY[i] += pVy[i] * dt;
+          pAngle[i] += pAngVel[i] * dt;
+
+          // М'яке згасання наприкінці польоту
+          if (prog > 0.6) {
+            pAlpha[i] = 1.0 - (prog - 0.6) / 0.4;
+          }
+
+          // Ущільнення масиву без створення об'єктів
+          if (alive !== i) {
+            pX[alive] = pX[i];
+            pY[alive] = pY[i];
+            pVx[alive] = pVx[i];
+            pVy[alive] = pVy[i];
+            pLife[alive] = pLife[i];
+            pMaxLife[alive] = pMaxLife[i];
+            pSize[alive] = pSize[i];
+            pAngle[alive] = pAngle[i];
+            pAngVel[alive] = pAngVel[i];
+            pTile[alive] = pTile[i];
+            pAlpha[alive] = pAlpha[i];
+            pTurb[alive] = pTurb[i];
+          }
+          alive++;
+        }
+      }
+      partCount = alive;
+    }
+
+    /* =====================================================================
+       8. ГОЛОВНИЙ ЦИКЛ РЕНДЕРИНГУ (60 FPS СТАБІЛЬНО)
+       ===================================================================== */
+    let fpsFrames = 0;
+    let fpsLastTime = performance.now();
+    const fpsMeter = document.getElementById('fpsMeter');
+    const particleMeter = document.getElementById('particleMeter');
+	// Точне відтворення S-кривої швидкості з DaVinci Resolve (від 100% до 380%)
+	function getDaVinciSpeedMultiplier(progress) {
+				// Перші 20% часу (фаза спокійного потемніння) — базова швидкість 1.0 (100%)
+		if (progress <= 0.20) return 1.0;
+		// Після 85% часу — вихід на максимальне плато 3.8 (380%)
+		if (progress >= 0.85) return 3.8;
+
+		// Плавний S-розгін (Smoothstep) між 20% і 85%
+		const t = (progress - 0.20) / (0.85 - 0.20);
+		const ease = t * t * (3.0 - 2.0 * t); // кубічна S-крива
+		return 1.0 + ease * 2.8; // інтерполяція від 1.0 до 3.8
+	}
+	
+	function renderLoop(now) {
+		if (!lastTime) lastTime = now;
+		const rawDt = Math.min((now - lastTime) * 0.001, 0.05);
+		lastTime = now;
+
+		// Розраховуємо прогрес та динамічний розгін за кривою DaVinci
+		const normalizedProgress = Math.min(waveProgress / 1.15, 1.0);
+		const speedMultiplier = isPlaying ? getDaVinciSpeedMultiplier(normalizedProgress) : 1.0;
+  
+		// dt, помножений на коефіцієнт прискорення
+		const dt = rawDt * speedMultiplier;
+
+		// Лічильник FPS
+		fpsFrames++;
+		if (now - fpsLastTime >= 500) {
+			const fps = Math.round((fpsFrames * 1000) / (now - fpsLastTime));
+			fpsMeter.textContent = `FPS: ${fps} (${Math.round(speedMultiplier * 100)}% спід)`;
+			particleMeter.textContent = `Частинок: ${partCount}`;
+			fpsFrames = 0;
+			fpsLastTime = now;
+		}
+
+		// Логіка переміщення хвилі (використовує прискорений dt)
+		const delayDistance = BLACK_DELAY_SECONDS / waveDuration;
+
+if (isPlaying) {
+			waveProgress += dt / waveDuration;
+			if (waveProgress > 1.45) {
+				waveProgress = 1.45;
+			}
+
+			// Автоматична зупинка: хвиля пройшла І останній уламок попелу зник з екрана
+			if (isExporting && waveProgress >= 1.45 && partCount === 0) {
+				if (mediaRecorder && mediaRecorder.state === 'recording') {
+					mediaRecorder.stop();
+				}
+			}
+
+        // Поточна дистанція хвилі розпаду
+        const currentDissolveDist = waveProgress - delayDistance;
+
+        // Потоковий спавн частинок у міру проходження хвилі
+        if (currentDissolveDist > 0 && emissionIndex < emissionPoints.length) {
+          while (
+            emissionIndex < emissionPoints.length &&
+            emissionPoints[emissionIndex].d <= currentDissolveDist
+          ) {
+            const pt = emissionPoints[emissionIndex];
+            // Спавн із урахуванням густини
+            if (Math.random() < 0.65 * densityFactor) {
+              spawnParticle(pt.x, pt.y);
+            }
+            if (densityFactor > 1.2 && Math.random() < 0.35) {
+              spawnParticle(pt.x, pt.y);
+            }
+            emissionIndex++;
+          }
+        }
+        lastDissolveDist = currentDissolveDist;
+      }
+
+      updateParticles(dt);
+
+      // Встановлення Viewport 1200x1200
+      gl.viewport(0, 0, 1200, 1200);
+      gl.clearColor(bgColor[0], bgColor[1], bgColor[2], 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      // --- КРОК 1: Рендеринг цілісного тіла смайлика із шейдером розпаду ---
+      gl.useProgram(bodyProg);
+      gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+      const aPos = gl.getAttribLocation(bodyProg, 'a_pos');
+      gl.enableVertexAttribArray(aPos);
+      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, imgTex);
+      gl.uniform1i(gl.getUniformLocation(bodyProg, 'u_image'), 0);
+      gl.uniform1f(gl.getUniformLocation(bodyProg, 'u_progress'), waveProgress);
+      gl.uniform1f(gl.getUniformLocation(bodyProg, 'u_gradWidth'), GRADIENT_WIDTH);
+      gl.uniform1f(gl.getUniformLocation(bodyProg, 'u_delay'), delayDistance);
+      gl.uniform4f(gl.getUniformLocation(bodyProg, 'u_bgColor'), bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+      // --- КРОК 2: Рендеринг вихору попелу (Point Sprites з атласом) ---
+      if (partCount > 0) {
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+        gl.useProgram(partProg);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, atlasTex);
+        gl.uniform1i(gl.getUniformLocation(partProg, 'u_atlas'), 1);
+        gl.uniform2f(gl.getUniformLocation(partProg, 'u_res'), 1200, 1200);
+
+        // Пакування даних активних часток у VBO
+        for (let i = 0; i < partCount; i++) {
+          const off = i * 6;
+          partData[off + 0] = pX[i];
+          partData[off + 1] = pY[i];
+          partData[off + 2] = pSize[i];
+          partData[off + 3] = pAngle[i];
+          partData[off + 4] = pAlpha[i];
+          partData[off + 5] = pTile[i];
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, partVBO);
+        gl.bufferData(gl.ARRAY_BUFFER, partData.subarray(0, partCount * 6), gl.DYNAMIC_DRAW);
+
+        const stride = 6 * 4;
+        const pLocPos = gl.getAttribLocation(partProg, 'a_pos');
+        const pLocSize = gl.getAttribLocation(partProg, 'a_size');
+        const pLocAngle = gl.getAttribLocation(partProg, 'a_angle');
+        const pLocAlpha = gl.getAttribLocation(partProg, 'a_alpha');
+        const pLocTile = gl.getAttribLocation(partProg, 'a_tile');
+
+        gl.enableVertexAttribArray(pLocPos);
+        gl.vertexAttribPointer(pLocPos, 2, gl.FLOAT, false, stride, 0);
+
+        gl.enableVertexAttribArray(pLocSize);
+        gl.vertexAttribPointer(pLocSize, 1, gl.FLOAT, false, stride, 2 * 4);
+
+        gl.enableVertexAttribArray(pLocAngle);
+        gl.vertexAttribPointer(pLocAngle, 1, gl.FLOAT, false, stride, 3 * 4);
+
+        gl.enableVertexAttribArray(pLocAlpha);
+        gl.vertexAttribPointer(pLocAlpha, 1, gl.FLOAT, false, stride, 4 * 4);
+
+        gl.enableVertexAttribArray(pLocTile);
+        gl.vertexAttribPointer(pLocTile, 1, gl.FLOAT, false, stride, 5 * 4);
+
+        gl.drawArrays(gl.POINTS, 0, partCount);
+        gl.disable(gl.BLEND);
+      }
+
+      requestAnimationFrame(renderLoop);
+    }
+	
+			// =====================================================================
+// ЕКСПОРТ У ЧИСТИЙ MP4 (БЕЗ ЗВУКУ) ДЛЯ TELEGRAM GIF
+// =====================================================================
+const btnExportMP4 = document.getElementById('btnExportMP4');
+let mediaRecorder = null;
+let recordedChunks = [];
+let isExporting = false;
+
+btnExportMP4.addEventListener('click', () => {
+  if (isExporting) return;
+  startMp4Export();
+});
+
+function startMp4Export() {
+  isExporting = true;
+  btnExportMP4.textContent = "⏳ Запис (до останньої пилинки)...";
+  btnExportMP4.style.background = "#c62828";
+  btnExportMP4.disabled = true;
+
+  // Скидаємо стан на початок
+  resetAnimation();
+
+  // Захоплюємо потік напряму з Canvas на 60 FPS (БЕЗ аудіотреку!)
+  const stream = canvas.captureStream(60);
+
+  // Вибираємо MP4 кодек
+  let mimeType = 'video/mp4';
+  if (!MediaRecorder.isTypeSupported('video/mp4')) {
+    if (MediaRecorder.isTypeSupported('video/mp4;codecs=avc1')) {
+      mimeType = 'video/mp4;codecs=avc1';
+    } else {
+      // Резервний варіант для браузерів без прямого mp4 muxer
+      mimeType = 'video/webm';
+    }
+  }
+
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(stream, {
+    mimeType: mimeType,
+    videoBitsPerSecond: 8000000 // 8 Mbps — максимальна чіткість без артефактів
+  });
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data && e.data.size > 0) {
+      recordedChunks.push(e.data);
+    }
+  };
+
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `emoji_disintegrate_${Date.now()}.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    isExporting = false;
+    btnExportMP4.textContent = "🎬 Експортувати в MP4 (Telegram GIF)";
+    btnExportMP4.style.background = "#2e7d32";
+    btnExportMP4.disabled = false;
+  };
+
+  // Запускаємо запис і програвання
+  mediaRecorder.start();
+  isPlaying = true;
+}
+
+    // Старт анімаційного циклу
+    requestAnimationFrame(renderLoop);
+  </script>
+</body>
+</html>
